@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generator RPP Kurikulum Merdeka (Prompt Config)</title>
+    
+    <!-- Library untuk generate file Docx dari HTML -->
+    <script src="https://cdn.jsdelivr.net/npm/html-docx-js/dist/html-docx.js"></script>
+    
+    <!-- Library Math KaTeX (Untuk Preview Rumus) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --secondary: #64748b;
+            --accent: #0f172a;
+            --bg: #f1f5f9;
+            --surface: #ffffff;
+            --text: #334155;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --error: #ef4444;
+            --radius: 8px;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        header {
+            background-color: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--primary-dark);
+        }
+
+        .brand-icon {
+            width: 32px;
+            height: 32px;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .header-actions button {
+            background: transparent;
+            border: 1px solid var(--border);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: var(--secondary);
+            transition: all 0.2s;
+        }
+
+        .header-actions button:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* TAB NAVIGATION STYLE */
+        .tabs {
+            background: var(--surface);
+            padding: 0 2rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            gap: 20px;
+        }
+
+        .tab-btn {
+            padding: 1rem 0.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--secondary);
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 2rem;
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Main Layout for Tab 1 */
+        .main-wrapper {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 2rem;
+            height: 100%;
+        }
+        
+        @media (max-width: 1024px) {
+            .main-wrapper { grid-template-columns: 1fr; }
+        }
+
+        /* Sidebar / Form */
+        .form-panel {
+            background: var(--surface);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            height: fit-content;
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+        }
+
+        .panel-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--accent);
+            border-bottom: 2px solid var(--bg);
+            padding-bottom: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 0.4rem;
+            color: var(--text);
+        }
+
+        select, textarea {
+            width: 100%;
+            padding: 0.6rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 0.9rem;
+            transition: border-color 0.2s;
+            background-color: #fff;
+        }
+
+        select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+        }
+
+        select:disabled {
+            background-color: #f1f5f9;
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 60px;
+            font-family: monospace;
+        }
+
+        .btn-generate {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.8rem;
+            border-radius: var(--radius);
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background-color 0.2s;
+        }
+
+        .btn-generate:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-generate:disabled {
+            background-color: var(--secondary);
+            cursor: not-allowed;
+        }
+
+        /* Output Area */
+        .output-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--surface);
+            padding: 1rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        .output-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-small {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.85rem;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            border-radius: 6px;
+            cursor: pointer;
+            color: var(--text);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-small:hover {
+            background: var(--border);
+        }
+
+        .btn-word {
+            border-color: #2b579a;
+            color: #2b579a;
+            background: #f0f6ff;
+        }
+        .btn-word:hover {
+            background: #e0efff;
+        }
+
+        /* STYLING PREVIEW AREA */
+        #rpp-result {
+            background: var(--surface);
+            padding: 3rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            min-height: 500px;
+            font-family: 'Calibri', 'Arial', sans-serif; 
+            font-size: 11pt;
+            color: #000000;
+            line-height: 1.5;
+            text-align: justify;
+            border: 1px solid var(--border);
+            white-space: normal; 
+            overflow-x: auto;
+        }
+
+        #rpp-result h3 { color: #2E74B5; font-size: 14pt; font-weight: bold; border-bottom: 1px solid #ccc; padding-top: 10px; margin-top: 20px; margin-bottom: 10px; }
+        #rpp-result h4 { font-weight: bold; font-size: 12pt; margin-top: 10px; color: #4F81BD; }
+        #rpp-result p { margin-bottom: 10px; }
+        #rpp-result ul { margin: 5px 0 5px 30px; padding-left: 0; }
+        #rpp-result li { margin-bottom: 5px; }
+        #rpp-result table { width: 100%; border-collapse: collapse; margin: 15px 0; border: 1px solid #000; }
+        #rpp-result th { background-color: #f2f2f2; font-weight: bold; border: 1px solid #000; padding: 8px; text-align: left; }
+        #rpp-result td { border: 1px solid #000; padding: 8px; text-align: left; }
+        .katex { color: #000; }
+
+        /* Empty State */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--secondary);
+            text-align: center;
+            opacity: 0.7;
+        }
+        .empty-state svg { width: 64px; height: 64px; margin-bottom: 1rem; stroke: currentColor; }
+
+        /* TAB 2: Master Data Styles */
+        .data-container {
+            background: var(--surface);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .master-section {
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            background: #fff;
+        }
+
+        .master-section h3 {
+            font-size: 1rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--bg);
+        }
+
+        .data-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .data-item {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-remove-data {
+            background: #fee2e2;
+            color: #ef4444;
+            border: 1px solid #fecaca;
+            width: 40px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-remove-data:hover { background: #fecaca; }
+
+        .btn-add-data {
+            border: 2px dashed var(--primary);
+            background: #f0f9ff;
+            color: var(--primary);
+            width: 100%;
+            padding: 0.5rem;
+            border-radius: var(--radius);
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-add-data:hover { background: #e0f2fe; }
+        
+        .btn-master-save {
+            background-color: var(--success);
+            color: white;
+            width: 100%;
+            padding: 1rem;
+            border-radius: var(--radius);
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+        .btn-master-save:hover { background-color: #059669; }
+
+        /* PROMPT MODAL STYLES */
+        dialog.prompt-modal {
+            margin: auto;
+            padding: 2rem;
+            border: none;
+            border-radius: var(--radius);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            max-width: 800px;
+            width: 90%;
+        }
+        dialog::backdrop { background: rgba(0, 0, 0, 0.5); }
+
+        .modal-header {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .close-modal { background: none; border: none; font-size: 1.5rem; cursor: pointer; line-height: 1; color: var(--secondary); }
+
+        .key-note {
+            font-size: 0.8rem;
+            color: var(--secondary);
+            margin-bottom: 1.5rem;
+            background: #fffbeb;
+            border: 1px solid #fcd34d;
+            padding: 0.75rem;
+            border-radius: var(--radius);
+            display: flex;
+            gap: 10px;
+            align-items: start;
+        }
+
+        .modal-actions { display: flex; gap: 10px; margin-top: 2rem; justify-content: flex-end; }
+
+        .btn-modal {
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .btn-test {
+            background: white;
+            color: var(--primary-color);
+            border: 1px solid var(--border-color);
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-test:hover { background: #f8f9fa; }
+
+        .btn-save { background-color: var(--primary); color: white; border: none; flex: 1; }
+        .btn-save:hover { background-color: var(--primary-dark); }
+
+        /* API Settings Modal */
+        dialog {
+            margin: auto;
+            padding: 2rem;
+            border: none;
+            border-radius: var(--radius);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            max-width: 550px;
+            width: 90%;
+        }
+        dialog::backdrop { background: rgba(0, 0, 0, 0.5); }
+
+        .modal-header {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .close-modal { background: none; border: none; font-size: 1.5rem; cursor: pointer; line-height: 1; color: var(--secondary); }
+
+        .key-note {
+            font-size: 0.8rem;
+            color: var(--secondary);
+            margin-bottom: 1.5rem;
+            background: #fffbeb;
+            border: 1px solid #fcd34d;
+            padding: 0.75rem;
+            border-radius: var(--radius);
+            display: flex;
+            gap: 10px;
+            align-items: start;
+        }
+
+        .modal-actions { display: flex; gap: 10px; margin-top: 2rem; justify-content: flex-end; }
+
+        .key-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 1rem;
+            max-height: 200px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .key-item { display: flex; gap: 8px; }
+        .key-item input { flex: 1; }
+
+        .btn-remove-key {
+            background: #fee2e2;
+            color: #ef4444;
+            border: 1px solid #fecaca;
+            width: 40px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-remove-key:hover { background: #fecaca; }
+
+        .btn-add {
+            width: 100%;
+            border: 1px dashed var(--primary);
+            color: var(--primary);
+            background: #f0f9ff;
+            padding: 0.5rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        .btn-add:hover { background: #e0f2fe; }
+
+        .btn-modal {
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .btn-test {
+            background: white;
+            color: var(--primary-color);
+            border: 1px solid var(--border-color);
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-test:hover { background: #f8f9fa; }
+
+        .btn-save {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            flex: 1;
+        }
+        .btn-save:hover { background-color: var(--primary-dark); }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            border-radius: var(--radius);
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Toast */
+        #toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background: var(--surface);
+            color: var(--text);
+            padding: 1rem;
+            border-radius: var(--radius);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid var(--primary);
+            animation: slideIn 0.3s ease-out forwards;
+            min-width: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.9rem;
+        }
+
+        .toast.error { border-left-color: var(--error); }
+        .toast.success { border-left-color: var(--success); }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="brand">
+        <div class="brand-icon">AI</div>
+        <span>Kurikulum Merdeka Architect</span>
+    </div>
+    <div class="header-actions">
+        <button id="btn-settings">⚙️ API</button>
+        <button onclick="openPromptModal()">📝 Prompt Config</button>
+    </div>
+</header>
+
+<!-- TAB NAVIGASI -->
+<div class="tabs">
+    <div class="tab-btn active" onclick="switchTab('generate')">Generate RPP</div>
+    <div class="tab-btn" onclick="switchTab('master-data')">Kelola Data Dropdown</div>
+</div>
+
+<!-- TAB 1: GENERATE RPP -->
+<div id="tab-generate" class="tab-content active">
+    <div class="main-wrapper">
+        <!-- Left Panel: Input Form -->
+        <section class="form-panel">
+            <h2 class="panel-title">Parameter Pembelajaran</h2>
+            <div id="dynamic-form-container">
+                <!-- Inputs will be injected here by JS -->
+            </div>
+
+            <button id="btn-generate" class="btn-generate" onclick="generateRPP()">
+                <span>✨ Generate RPP</span>
+            </button>
+            <div id="loading-indicator" class="loading-overlay" style="display: none;">
+                <div class="spinner"></div>
+                <p>AI sedang menyusun dokumen...</p>
+            </div>
+        </section>
+
+        <!-- Right Panel: Output -->
+        <section class="output-panel">
+            <div class="output-header">
+                <h3 style="font-weight: 600; color: var(--accent);">Dokumen Preview (Math Support)</h3>
+                <div class="output-actions">
+                    <button class="btn-small" onclick="copyToClipboard()">📋 Salin Teks</button>
+                    <button class="btn-small" onclick="window.print()">🖨️ Cetak / PDF</button>
+                    <button class="btn-small btn-word" onclick="downloadDocx()">📄 Download Word (.docx)</button>
+                </div>
+            </div>
+            
+            <div id="rpp-result">
+                <div class="empty-state">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    <p>Pilih parameter dari dropdown di samping dan klik "Generate RPP".<br>Semua data dapat diatur di tab "Kelola Data".</p>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<!-- TAB 2: KELOLA DATA -->
+<div id="tab-master-data" class="tab-content">
+    <div class="data-container">
+        <h2 class="panel-title" style="font-size: 1.5rem; border:none;">Manajemen Data Dropdown</h2>
+        <div class="key-note">
+            <span>📝</span>
+            <span>Kelola pilihan untuk semua formulir di bawah ini. Data akan otomatis muncul di tab "Generate RPP".</span>
+        </div>
+        
+        <div id="master-data-list">
+            <!-- Master data sections injected here -->
+        </div>
+
+        <button class="btn-master-save" onclick="saveAllMasterData()">Simpan Semua Perubahan</button>
+    </div>
+</div>
+
+<!-- MODAL KONFIGURASI PROMPT -->
+<dialog id="prompt-modal" class="prompt-modal">
+    <div class="modal-header">
+        <span>Konfigurasi Prompt (JSON)</span>
+        <button class="close-modal" onclick="document.getElementById('prompt-modal').close()">&times;</button>
+    </div>
+    
+    <div class="key-note">
+        <span>🤖</span>
+        <span>Ubah persona AI dan struktur output di sini untuk hasil yang lebih detail. Pastikan format JSON valid.</span>
+    </div>
+
+    <div class="form-group">
+        <label>Config JSON Prompt</label>
+        <textarea id="prompt-json-input" rows="15" spellcheck="false"></textarea>
+    </div>
+
+    <div class="modal-actions">
+        <button class="btn-modal btn-test" onclick="resetPromptConfig()">
+            <span>🔄 Reset Default</span>
+        </button>
+        <button class="btn-modal btn-save" onclick="savePromptConfig()">
+            <span>💾 Simpan Prompt</span>
+        </button>
+    </div>
+</dialog>
+
+<!-- MODAL SETTINGS API -->
+<dialog id="settings-modal">
+    <div class="modal-header">
+        <span>Pengaturan Google Gemini</span>
+        <button class="close-modal" onclick="document.getElementById('settings-modal').close()">&times;</button>
+    </div>
+    
+    <div class="key-note">
+        <span>🔒</span>
+        <span>API Key disimpan di browser. Gunakan banyak key untuk mengatasi limit kuota. Sistem otomatis mencoba key berikutnya jika key pertama habis.</span>
+    </div>
+
+    <div class="form-group">
+        <label>Daftar API Key</label>
+        <div id="keys-container" class="key-list">
+            <!-- Keys injected by JS -->
+        </div>
+        <button class="btn-add" onclick="addKeyInput()">+ Tambah API Key</button>
+    </div>
+
+    <div class="form-group">
+        <label for="gemini-model">Pilih Model</label>
+        <select id="gemini-model" disabled>
+            <option value="">Klik 'Tes Koneksi' dulu</option>
+        </select>
+        <small style="color: var(--secondary); font-size: 0.75rem; display: block; margin-top: 4px;">Daftar model akan diambil otomatis dari Google API.</small>
+    </div>
+
+    <div class="modal-actions">
+        <button id="btn-test-gemini" class="btn-modal btn-test" onclick="fetchGeminiModels()">
+            <span>🔄 Tes Koneksi & Muat Model</span>
+        </button>
+    </div>
+
+    <div style="margin-top: 2rem; overflow: hidden;">
+        <button class="btn-modal btn-save" onclick="saveSettings()">Simpan Pengaturan</button>
+    </div>
+</dialog>
+
+<div id="toast-container"></div>
+
+<script>
+    // --- DEFAULT PROMPT JSON (LEBIH DETAIL) ---
+    // Struktur JSON untuk prompt: System Prompt (Persona) dan Output Structure (Format)
+    const DEFAULT_PROMPT_JSON = {
+        system_prompt: `Anda adalah AI Instructional Designer profesional yang sangat detail dan menjelaskan secara mendalam.\n\nAnda memahami:\n- Kurikulum Merdeka Indonesia\n- Pembelajaran Deep Learning (pemahaman bermakna)\n- Profil Pelajar Pancasila\n- HOTS & diferensiasi pembelajaran\n\nATURAN TONE:\n- Output harus sangat panjang, tidak ada singkatan yang ambigu.\n- Berikan contoh konkret jika diperlukan.\n- Jelaskan konsep langkah demi langkah.`,
+        structure_instruction: `STRUKTUR OUTPUT WAJIB (IKUTI TITIK INI PERSIS):\nA. Identitas RPP\nB. Capaian Pembelajaran (CP)\nC. Tujuan Pembelajaran (HOTS) - Kembangkan menjadi 3-4 tujuan spesifik.\nD. Pemahaman Bermakna - Jelaskan mengapa materi ini penting bagi siswa.\nE. Pertanyaan Pemantik - Berikan minimal 5 pertanyaan berpikir tingkat tinggi.\nF. Kegiatan Pembelajaran\n   - Pendahuluan (Detail: Motivasi, Apersepsi)\n   - Kegiatan Inti (Detail: Eksplorasi, Elaborasi, Refleksi)\n   - Penutup (Detail: Refleksi)\nG. Asesmen\n   - Diagnostik\n   - Formatif\n   - Sumatif\nH. Diferensiasi Pembelajaran (Detail: Konten, Proses, Produk)\nI. Implementasi Profil Pelajar Pancasila\nJ. Media & Sumber Belajar`
+    };
+
+    // --- PARAMETER CONFIG (FIELD DEFINITIONS) ---
+    const PARAM_CONFIG = [
+        { id: 'jenjang_pendidikan', label: 'Jenjang Pendidikan', type: 'select', default: ['PAUD', 'SD', 'SMP', 'SMA/SMK'] },
+        { id: 'kelas_atau_fase', label: 'Kelas / Fase', type: 'select', default: ['Kelas VII', 'Kelas VIII', 'Kelas IX', 'Fase D', 'Fase E'] },
+        { id: 'mata_pelajaran', label: 'Mata Pelajaran', type: 'select', default: ['Matematika', 'Bahasa Indonesia', 'IPA', 'Bahasa Inggris'] },
+        { id: 'topik_materi', label: 'Topik Materi Utama', type: 'select', default: ['Pecahan', 'Bilangan Bulat', 'Aljabar Linear', 'Persamaan Garis'] },
+        { id: 'alokasi_waktu', label: 'Alokasi Waktu', type: 'select', default: ['2 x 40 Menit', '3 x 40 Menit', '90 Menit', '120 Menit'] },
+        { id: 'model_pembelajaran', label: 'Model Pembelajaran', type: 'select', default: ['Problem Based Learning (PBL)', 'Project Based Learning (PjBL)', 'Discovery Learning'] },
+        { id: 'pendekatan_pembelajaran', label: 'Pendekatan', type: 'select', default: ['Saintifik', 'Diferensiasi', 'Kontekstual', 'PBL'] },
+        { id: 'profil_pelajar_pancasila', label: 'Profil Pelajar Pancasila', type: 'select', default: ['Beriman, Bertakwa, dan Berakhlak Mulia', 'Berkebinekaan Global', 'Gotong Royong'] },
+        { id: 'jenis_asesmen', label: 'Jenis Asesmen', type: 'select', default: ['Formatif (Kinerja)', 'Sumatif (Tertulis)', 'Diagnostik', 'Portofolio'] },
+        { id: 'karakteristik_peserta_didik', label: 'Karakteristik Peserta Didik', type: 'select', default: ['Siswa aktif dan kreatif dalam diskusi.', 'Siswa visual, mudah memahami gambar.', 'Siswa heterogen tingkat kemampuannya.'] }
+    ];
+
+    // --- STATE MANAGEMENT ---
+    let masterDataStore = {};
+    let promptConfigStore = {}; // Menyimpan objek JSON prompt
+    let currentEngine = 'Gemini';
+
+    // --- INITIALIZATION ---
+    document.addEventListener('DOMContentLoaded', () => {
+        // 1. Init Master Data
+        initMasterData();
+        
+        // 2. Render Dynamic Forms
+        renderGenerateForm();
+        
+        // 3. Render Master Data Tab
+        renderMasterDataTab();
+
+        // 4. Load Prompt Config
+        loadPromptConfig();
+
+        // 5. Load API Keys
+        const savedKeys = JSON.parse(localStorage.getItem('gemini_keys')) || [];
+        const container = document.getElementById('keys-container');
+        savedKeys.forEach(key => addKeyInput(key));
+        if (savedKeys.length === 0) addKeyInput();
+
+        // 6. Load Model
+        const savedGeminiModel = localStorage.getItem('gemini_model');
+        if (savedGeminiModel) {
+            const geminiSelect = document.getElementById('gemini-model');
+            geminiSelect.innerHTML = '';
+            const opt = document.createElement('option');
+            opt.value = savedGeminiModel;
+            opt.text = savedGeminiModel + " (Tersimpan)";
+            opt.selected = true;
+            geminiSelect.add(opt);
+            geminiSelect.disabled = false;
+        }
+    });
+
+    // --- PROMPT CONFIG LOGIC ---
+    function loadPromptConfig() {
+        const stored = localStorage.getItem('prompt_json_config');
+        if (stored) {
+            promptConfigStore = JSON.parse(stored);
+        } else {
+            promptConfigStore = DEFAULT_PROMPT_JSON;
+        }
+        
+        // Tampilkan JSON yang rapi di textarea (formatted)
+        const jsonInput = document.getElementById('prompt-json-input');
+        jsonInput.value = JSON.stringify(promptConfigStore, null, 4);
+    }
+
+    function openPromptModal() {
+        document.getElementById('prompt-modal').showModal();
+    }
+
+    function savePromptConfig() {
+        const jsonInput = document.getElementById('prompt-json-input').value;
+        try {
+            const parsed = JSON.parse(jsonInput);
+            
+            // Validasi sederhana: apakah punya system_prompt?
+            if (!parsed.system_prompt || !parsed.structure_instruction) {
+                showToast('JSON harus memiliki properti "system_prompt" dan "structure_instruction".', 'error');
+                return;
+            }
+
+            promptConfigStore = parsed;
+            localStorage.setItem('prompt_json_config', JSON.stringify(parsed));
+            showToast('Prompt Konfigurasi berhasil disimpan', 'success');
+            document.getElementById('prompt-modal').close();
+        } catch (e) {
+            console.error(e);
+            showToast('Format JSON tidak valid. Cek koma atau kurung kurawal.', 'error');
+        }
+    }
+
+    function resetPromptConfig() {
+        if(confirm('Reset prompt ke default (JSON)?')) {
+            promptConfigStore = DEFAULT_PROMPT_JSON;
+            localStorage.removeItem('prompt_json_config');
+            loadPromptConfig();
+            showToast('Prompt di-reset ke default', 'info');
+        }
+    }
+
+    // --- MASTER DATA LOGIC ---
+    function initMasterData() {
+        PARAM_CONFIG.forEach(param => {
+            const stored = localStorage.getItem(`master_${param.id}`);
+            if (stored) {
+                masterDataStore[param.id] = JSON.parse(stored);
+            } else {
+                masterDataStore[param.id] = param.default;
+            }
+        });
+    }
+
+    function renderGenerateForm() {
+        const container = document.getElementById('dynamic-form-container');
+        container.innerHTML = '';
+
+        PARAM_CONFIG.forEach(param => {
+            const div = document.createElement('div');
+            div.className = 'form-group';
+            
+            const label = document.createElement('label');
+            label.innerText = param.label;
+            label.htmlFor = param.id;
+
+            const select = document.createElement('select');
+            select.id = param.id;
+            
+            const options = masterDataStore[param.id];
+            options.forEach(val => {
+                const opt = document.createElement('option');
+                opt.value = val;
+                opt.text = val;
+                select.add(opt);
+            });
+
+            div.appendChild(label);
+            div.appendChild(select);
+            container.appendChild(div);
+        });
+    }
+
+    function renderMasterDataTab() {
+        const container = document.getElementById('master-data-list');
+        container.innerHTML = '';
+
+        PARAM_CONFIG.forEach(param => {
+            const section = document.createElement('div');
+            section.className = 'master-section';
+            
+            const h3 = document.createElement('h3');
+            h3.innerText = `Kelola: ${param.label}`;
+            
+            const listDiv = document.createElement('div');
+            listDiv.id = `list-${param.id}`;
+            listDiv.className = 'data-list';
+            
+            renderDataItems(param.id, listDiv);
+
+            const addBtn = document.createElement('button');
+            addBtn.className = 'btn-add-data';
+            addBtn.innerText = '+ Tambah Opsi Baru';
+            addBtn.onclick = () => addJenjangItem(param.id);
+
+            section.appendChild(h3);
+            section.appendChild(listDiv);
+            section.appendChild(addBtn);
+            container.appendChild(section);
+        });
+    }
+
+    // Menggunakan fungsi umum untuk add item
+    function addJenjangItem(paramId) {
+        masterDataStore[paramId].push("Opsi Baru");
+        const listDiv = document.getElementById(`list-${paramId}`);
+        renderDataItems(paramId, listDiv);
+    }
+
+    function renderDataItems(paramId, container) {
+        container.innerHTML = '';
+        const items = masterDataStore[paramId];
+
+        items.forEach((item, index) => {
+            const div = document.createElement('div');
+            div.className = 'data-item';
+            
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = item;
+            input.onchange = (e) => updateJenjangItem(paramId, index, e.target.value);
+
+            const btn = document.createElement('button');
+            btn.className = 'btn-remove-data';
+            btn.innerHTML = '&times;';
+            btn.onclick = () => removeJenjangItem(paramId, index);
+
+            div.appendChild(input);
+            div.appendChild(btn);
+            container.appendChild(div);
+        });
+    }
+
+    function removeJenjangItem(paramId, index) {
+        if (masterDataStore[paramId].length <= 1) {
+            showToast('Minimal harus ada 1 data', 'error');
+            return;
+        }
+        masterDataStore[paramId].splice(index, 1);
+        // Refresh list UI
+        renderDataItems(paramId, document.getElementById(`list-${paramId}`));
+    }
+
+    function updateJenjangItem(paramId, index, newValue) {
+        masterDataStore[paramId][index] = newValue;
+    }
+
+    function saveAllMasterData() {
+        PARAM_CONFIG.forEach(param => {
+            localStorage.setItem(`master_${param.id}`, JSON.stringify(masterDataStore[param.id]));
+        });
+
+        // Refresh Dropdown secara instan
+        renderGenerateForm();
+
+        showToast('Data dropdown berhasil disimpan & diperbarui', 'success');
+    }
+
+    // --- TAB LOGIC ---
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+        document.getElementById(`tab-${tabId}`).classList.add('active');
+        
+        const buttons = document.querySelectorAll('.tab-btn');
+        if (tabId === 'generate') buttons[0].classList.add('active');
+        if (tabId === 'master-data') buttons[1].classList.add('active');
+    }
+
+    // --- CORE LOGIC: MATH SUPPORT ---
+    function simpleLatexToHTML(latex) {
+        let html = latex;
+        html = html.replace(/\^\{([^}]+)\}/g, "<sup>$1</sup>");
+        html = html.replace(/\^(\d)/g, "<sup>$1</sup>");
+        html = html.replace(/_\{([^}]+)\}/g, "<sub>$1</sub>");
+        html = html.replace(/_(\d)/g, "<sub>$1</sub>");
+        html = html.replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, "<sup>$1</sup> / <sub>$2</sub>");
+        html = html.replace(/\\sqrt\{([^}]+)\}/g, "√$1");
+        return html;
+    }
+
+    function parseMarkdownToHTML(rawText, mode = 'preview') {
+        let lines = rawText.split('\n');
+        let i = 0;
+        let htmlContent = '';
+        let inList = false;
+
+        while (i < lines.length) {
+            let current = lines[i].trim();
+            let next = (i + 1 < lines.length) ? lines[i+1].trim() : '';
+
+            if (current.includes('|') && next.includes('|---')) {
+                if(inList) { htmlContent += '</ul>'; inList = false; }
+                let tableRows = [current];
+                i += 2; 
+                while (i < lines.length && lines[i].trim().includes('|')) {
+                    tableRows.push(lines[i].trim());
+                    i++;
+                }
+                htmlContent += '<table style="width:100%; border-collapse: collapse; margin: 15px 0; border: 1px solid #000;">';
+                let headerCells = tableRows[0].split('|').map(c => c.trim()).filter(c => c);
+                htmlContent += '<thead><tr style="background-color: #f2f2f2;">';
+                headerCells.forEach(c => htmlContent += `<th style="border: 1px solid #000; padding: 8px; text-align: left; font-weight: bold;">${c}</th>`);
+                htmlContent += '</tr></thead><tbody>';
+                for (let r = 1; r < tableRows.length; r++) {
+                    let bodyCells = tableRows[r].split('|').map(c => c.trim()).filter(c => c);
+                    htmlContent += '<tr>';
+                    bodyCells.forEach(c => htmlContent += `<td style="border: 1px solid #000; padding: 8px; text-align: left;">${c}</td>`);
+                    htmlContent += '</tr>';
+                }
+                htmlContent += '</tbody></table>';
+            } else {
+                if (!current) {
+                    if(inList) { htmlContent += '</ul>'; inList = false; }
+                    htmlContent += '<br>';
+                    i++;
+                    continue;
+                }
+                
+                const mathPlaceholders = [];
+                const mathRegex = /\$\$([\s\S]+?)\$\$|\$([^$\n]+?)\$/g;
+                
+                if (mode === 'preview' && typeof katex !== 'undefined') {
+                    current = current.replace(mathRegex, (match, block, inline) => {
+                        const expr = block || inline;
+                        const displayMode = !!block;
+                        try {
+                            const html = katex.renderToString(expr, { throwOnError: false, displayMode: displayMode });
+                            return html; 
+                        } catch(e) { return match; }
+                    });
+                } else {
+                    current = current.replace(mathRegex, (match, block, inline) => {
+                        const expr = block || inline;
+                        const converted = simpleLatexToHTML(expr);
+                        return block ? `<div style="padding:10px 0; text-align:center; font-size:1.1em;">${converted}</div>` : converted;
+                    });
+                }
+
+                current = current.replace(/`/g, '');
+                current = current.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+                current = current.replace(/^#+\s*/, '');
+
+                if (/^[A-J]\.\s/.test(current)) {
+                    if(inList) { htmlContent += '</ul>'; inList = false; }
+                    htmlContent += `<h3 style="color: #2E74B5; font-size: 14pt; font-weight: bold; border-bottom: 1px solid #ccc; padding-top: 10px; margin-top: 20px; margin-bottom: 10px;">${current}</h3>`;
+                }
+                else if (/^-\s/.test(current) || /^(Pendahuluan|Eksplorasi|Elaborasi|Refleksi|Penutup|Diagnostik|Formatif|Sumatif|Konten|Proses|Produk)\b/i.test(current)) {
+                    if(inList) { htmlContent += '</ul>'; inList = false; }
+                    let title = current.replace(/^-\s/, '');
+                    htmlContent += `<h4 style="font-weight: bold; font-size: 12pt; margin-top: 10px; color: #4F81BD;">${title}</h4>`;
+                }
+                else if (/^\d+\.\s/.test(current) || /^\*\s/.test(current)) {
+                    if(!inList) { htmlContent += '<ul>'; inList = true; }
+                    let content = current.replace(/^\d+\.\s*/, '').replace(/^\*\s*/, '');
+                    htmlContent += `<li style="margin-bottom: 5px;">${content}</li>`;
+                }
+                else {
+                    if(inList) { htmlContent += '</ul>'; inList = false; }
+                    htmlContent += `<p style="margin-bottom: 10px;">${current}</p>`;
+                }
+                i++;
+            }
+        }
+        
+        if(inList) htmlContent += '</ul>';
+        return htmlContent;
+    }
+
+    // --- UI ACTIONS ---
+    document.getElementById('btn-settings').addEventListener('click', () => {
+        document.getElementById('settings-modal').showModal();
+    });
+
+    function addKeyInput(value = '') {
+        const container = document.getElementById('keys-container');
+        const div = document.createElement('div');
+        div.className = 'key-item';
+        div.innerHTML = `
+            <input type="password" class="gemini-key-input" placeholder="AIza..." value="${value}">
+            <button class="btn-remove-key" onclick="this.parentElement.remove()" title="Hapus Key">&times;</button>
+        `;
+        container.appendChild(div);
+    }
+
+    function getKeys() {
+        const inputs = document.querySelectorAll('.gemini-key-input');
+        let keys = [];
+        inputs.forEach(input => {
+            if (input.value.trim() !== '') {
+                keys.push(input.value.trim());
+            }
+        });
+        return keys;
+    }
+
+    function saveSettings() {
+        const keys = getKeys();
+        const geminiModel = document.getElementById('gemini-model').value;
+
+        if (keys.length === 0) {
+            showToast('Mohon masukkan setidaknya satu API Key', 'error');
+            return;
+        }
+
+        localStorage.setItem('gemini_keys', JSON.stringify(keys));
+        if(geminiModel) localStorage.setItem('gemini_model', geminiModel);
+
+        document.getElementById('settings-modal').close();
+        showToast('Pengaturan API berhasil disimpan', 'success');
+    }
+
+    function showToast(message, type = 'info') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `<span>${message}</span> <span style="cursor:pointer" onclick="this.parentElement.remove()">&times;</span>`;
+        container.appendChild(toast);
+
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 300);
+        }, 4000);
+    }
+
+    async function copyToClipboard() {
+        let text = document.getElementById('rpp-result').innerText;
+        if (!text || document.querySelector('.empty-state')) {
+            showToast('Tidak ada konten untuk disalin', 'error');
+            return;
+        }
+        try {
+            await navigator.clipboard.writeText(text);
+            showToast('Dokumen berhasil disalin!', 'success');
+        } catch (err) {
+            showToast('Gagal menyalin teks', 'error');
+        }
+    }
+
+    // --- DOWNLOAD DOCX LOGIC ---
+    function downloadDocx() {
+        let resultDiv = document.getElementById('rpp-result');
+        let rawText = resultDiv.innerText;
+        
+        if (!rawText || document.querySelector('.empty-state')) {
+            showToast('Tidak ada dokumen untuk diunduh', 'error');
+            return;
+        }
+
+        showToast('Membuat file Word (Math Conversion)...', 'info');
+        let wordContent = parseMarkdownToHTML(rawText, 'word');
+
+        let contentHtml = `
+            <html xmlns:o='urn:schemas-microsoft-com:office:office' 
+                  xmlns:w='urn:schemas-microsoft-com:office:word' 
+                  xmlns='http://www.w3.org/TR/REC-html40'>
+            <head><meta charset='utf-8'><title>RPP Kurikulum Merdeka</title>
+            <style>
+                body { font-family: 'Calibri', 'Arial', sans-serif; font-size: 11pt; line-height: 1.5; }
+            </style>
+            </head><body>
+            ${wordContent}
+            </body></html>
+        `;
+
+        try {
+            let converted = htmlDocx.asBlob(contentHtml);
+            let link = document.createElement('a');
+            link.href = URL.createObjectURL(converted);
+            link.download = 'RPP_Kurikulum_Merdeka.docx';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast('File Word berhasil diunduh', 'success');
+        } catch (e) {
+            console.error(e);
+            showToast('Gagal membuat file Word', 'error');
+        }
+    }
+
+    // --- GEMINI CONNECTION LOGIC ---
+    async function fetchGeminiModels() {
+        let btn = document.getElementById('btn-test-gemini');
+        let select = document.getElementById('gemini-model');
+        let keys = getKeys();
+
+        if (keys.length === 0) {
+            showToast('Mohon isi API Key Gemini terlebih dahulu.', 'error');
+            return;
+        }
+
+        let apiKey = keys[0];
+        let originalText = btn.innerHTML;
+        btn.innerHTML = "Memuat...";
+        btn.disabled = true;
+        select.innerHTML = '<option>Memuat model...</option>';
+        select.disabled = true;
+
+        try {
+            let res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+            let data = await res.json();
+
+            if (res.ok && data.models) {
+                select.innerHTML = '';
+                let chatModels = data.models.filter(m => 
+                    m.name.includes('gemini') && 
+                    m.supportedGenerationMethods && 
+                    m.supportedGenerationMethods.includes('generateContent')
+                );
+
+                if (chatModels.length === 0) {
+                    showToast('Tidak ditemukan model yang mendukung chat.', 'error');
+                    select.add(new Option("Tidak ada model", ""));
+                } else {
+                    chatModels.forEach(m => {
+                        let id = m.name.split('/')[1];
+                        let opt = document.createElement('option');
+                        opt.value = id;
+                        opt.text = `${m.displayName} (${id})`;
+                        if(id.includes('flash')) opt.selected = true;
+                        select.add(opt);
+                    });
+                    select.disabled = false;
+                    showToast(`Berhasil! ${chatModels.length} model ditemukan.`, 'success');
+                }
+            } else {
+                let errorMsg = data.error?.message || 'API Key tidak valid.';
+                showToast(`Gagal: ${errorMsg}`, 'error');
+                select.innerHTML = '<option>Gagal memuat model</option>';
+            }
+
+        } catch (error) {
+            console.error(error);
+            showToast('Error Jaringan: Tidak dapat terhubung ke Google.', 'error');
+            select.innerHTML = '<option>Error koneksi</option>';
+        } finally {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    }
+
+    // --- Core Logic: Generate RPP (Updated with JSON Prompt) ---
+    async function generateRPP() {
+        let inputs = {};
+        PARAM_CONFIG.forEach(param => {
+            inputs[param.id] = document.getElementById(param.id).value;
+        });
+
+        if (!inputs.topik_materi || !inputs.mata_pelajaran) {
+            showToast('Mohon lengkapi Topik Materi dan Mata Pelajaran', 'error');
+            return;
+        }
+
+        const keys = JSON.parse(localStorage.getItem('gemini_keys')) || [];
+        
+        if (keys.length === 0) {
+            showToast('API Key belum diatur. Buka pengaturan.', 'error');
+            document.getElementById('settings-modal').showModal();
+            return;
+        }
+
+        let btn = document.getElementById('btn-generate');
+        let loader = document.getElementById('loading-indicator');
+        let resultArea = document.getElementById('rpp-result');
+        
+        btn.disabled = true;
+        loader.style.display = 'flex';
+        resultArea.innerHTML = '';
+
+        // --- MEMBANG PROMPT DARI JSON DAN INPUT DINAMIS ---
+        
+        // 1. Ambil Prompt System & Struktur dari JSON Config
+        const systemPrompt = promptConfigStore.system_prompt || DEFAULT_PROMPT_JSON.system_prompt;
+        const structureInstruction = promptConfigStore.structure_instruction || DEFAULT_PROMPT_JSON.structure_instruction;
+
+        // 2. Buat Body Prompt dari Input Form
+        let userPrompt = `Buatkan RPP lengkap dengan detail berikut:\n`;
+        let entries = Object.entries(inputs);
+        for (let i = 0; i < entries.length; i++) {
+            let key = entries[i][0];
+            let value = entries[i][1];
+            userPrompt += `- ${key.replace(/_/g, ' ').toUpperCase()}: ${value}\n`;
+        }
+        
+        // 3. Gabungkan Semu
+        let finalPrompt = `${systemPrompt}\n\n${structure_instruction}\n\nUSER REQUEST:\n${userPrompt}`;
+
+        try {
+            let resultText = await callGeminiWithFallback(keys, finalPrompt);
+            let formattedHTML = parseMarkdownToHTML(resultText, 'preview');
+            resultArea.innerHTML = formattedHTML;
+            showToast('RPP berhasil dibuat!', 'success');
+
+        } catch (error) {
+            console.error(error);
+            showToast(`Gagal: ${error.message}`, 'error');
+            resultArea.innerHTML = `<div class="empty-state" style="color:var(--error)">
+                <p>Terjadi kesalahan saat menghubungi AI Engine.<br>${error.message}</p>
+            </div>`;
+        } finally {
+            btn.disabled = false;
+            loader.style.display = 'none';
+        }
+    }
+
+    // --- API Bridge: Gemini Only (With Multi-Key Fallback) ---
+    async function callGeminiWithFallback(keys, promptContent) {
+        let model = localStorage.getItem('gemini_model') || 'gemini-pro'; 
+        let lastError = null;
+
+        for (let i = 0; i < keys.length; i++) {
+            let apiKey = keys[i];
+            try {
+                let response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: promptContent }] }],
+                        generationConfig: { temperature: 0.7, topK: 40, topP: 0.95, maxOutputTokens: 8192 }
+                    })
+                });
+
+                let data = await response.json();
+                if (!response.ok) {
+                    let rawError = data.error?.message || 'Gemini API Error';
+                    if (rawError.toLowerCase().includes('quota') || rawError.toLowerCase().includes('exceeded')) {
+                        showToast(`API Key ke-${i+1} Habis. Mencoba key berikutnya...`, 'info');
+                        lastError = new Error("Kuota API Habis");
+                        continue; 
+                    }
+                    throw new Error(`API Key ke-${i+1} Tidak Valid.`);
+                }
+                return data.candidates[0].content.parts[0].text;
+            } catch (e) {
+                if (e.message.includes("Tidak Valid")) throw e;
+                lastError = e;
+                showToast(`Gagal koneksi ke API Key ke-${i+1}, mencoba key lain...`, 'info');
+            }
+        }
+        throw new Error("Semua API Key gagal / Habis kuota.");
+    }
+
+</script>
+
+</body>
+</html>
